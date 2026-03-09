@@ -12,6 +12,11 @@ function getEnv(name: string): string {
   return value;
 }
 
+const ENTRY_ID_WHITELIST = [
+  "17179246901362733954",
+  "17179246901362734279",
+];
+
 function jsonResponse(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -40,14 +45,14 @@ Deno.serve(async (req: Request): Promise<Response> => {
   }
 
   // JSON body パース
-  let body: { photo_base64?: string; comment?: string; location_url?: string };
+  let body: { photo_base64?: string; comment?: string; location_url?: string; entry_id?: string };
   try {
     body = await req.json();
   } catch {
     return jsonResponse({ error: "Invalid JSON body" }, 400);
   }
 
-  const { photo_base64, comment, location_url } = body;
+  const { photo_base64, comment, location_url, entry_id } = body;
 
   console.log(JSON.stringify({
     time: new Date().toISOString(),
@@ -55,6 +60,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     photo_base64: photo_base64 ? `${photo_base64.slice(0, 30)}...` : null,
     comment,
     location_url,
+    entry_id,
   }));
 
   if (!comment || typeof comment !== "string") {
@@ -63,17 +69,25 @@ Deno.serve(async (req: Request): Promise<Response> => {
   if (!location_url || typeof location_url !== "string") {
     return jsonResponse({ error: "location_url is required" }, 400);
   }
-
   // 環境変数
-  let hatenaId: string, apiKey: string, blogId: string, entryId: string;
+  let hatenaId: string, apiKey: string, blogId: string, defaultEntryId: string;
   try {
     hatenaId = getEnv("HATENA_ID");
     apiKey = getEnv("HATENA_API_KEY");
     blogId = getEnv("HATENA_BLOG_ID");
-    entryId = getEnv("ENTRY_ID");
+    defaultEntryId = getEnv("ENTRY_ID");
   } catch (e) {
     console.error(e);
     return jsonResponse({ error: "Server configuration error" }, 500);
+  }
+
+  // entry_id: リクエスト優先、未指定なら環境変数にフォールバック
+  const resolvedEntryId = (entry_id && typeof entry_id === "string")
+    ? entry_id
+    : defaultEntryId;
+
+  if (!ENTRY_ID_WHITELIST.includes(resolvedEntryId)) {
+    return jsonResponse({ error: "entry_id is not allowed" }, 403);
   }
 
   // 画像アップロード（photo_base64 が省略された場合はスキップ）
@@ -93,7 +107,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   // 記事に追記
   try {
-    await appendToEntry(hatenaId, apiKey, blogId, entryId, appendMarkdown);
+    await appendToEntry(hatenaId, apiKey, blogId, resolvedEntryId, appendMarkdown);
   } catch (e) {
     console.error("appendToEntry error:", e);
     return jsonResponse({ error: "Failed to update blog entry" }, 502);
