@@ -9,20 +9,14 @@ function entryUrl(hatenaId: string, blogId: string, entryId: string): string {
   return `https://blog.hatena.ne.jp/${hatenaId}/${blogId}/atom/entry/${entryId}`;
 }
 
+const TZ = "Asia/Tokyo";
+
 function formatTime(date: Date): string {
-  const hh = String(date.getHours()).padStart(2, "0");
-  const mm = String(date.getMinutes()).padStart(2, "0");
-  return `${hh}:${mm}`;
+  return date.toLocaleString("sv-SE", { timeZone: TZ, timeStyle: "short" });
 }
 
 function formatDateTime(date: Date): string {
-  const yyyy = date.getFullYear();
-  const mo = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-  const hh = String(date.getHours()).padStart(2, "0");
-  const mm = String(date.getMinutes()).padStart(2, "0");
-  const ss = String(date.getSeconds()).padStart(2, "0");
-  return `${yyyy}-${mo}-${dd} ${hh}:${mm}:${ss}`;
+  return date.toLocaleString("sv-SE", { timeZone: TZ, dateStyle: "short", timeStyle: "medium" });
 }
 
 function buildAppendMarkdown(
