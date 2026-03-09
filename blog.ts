@@ -15,6 +15,16 @@ function formatTime(date: Date): string {
   return `${hh}:${mm}`;
 }
 
+function formatDateTime(date: Date): string {
+  const yyyy = date.getFullYear();
+  const mo = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  const ss = String(date.getSeconds()).padStart(2, "0");
+  return `${yyyy}-${mo}-${dd} ${hh}:${mm}:${ss}`;
+}
+
 function buildAppendMarkdown(
   locationUrl: string,
   imageUrl: string | null,
@@ -22,6 +32,7 @@ function buildAppendMarkdown(
   now: Date,
 ): string {
   const time = formatTime(now);
+  const datetime = formatDateTime(now);
 
   // 複数行のコメントは各行末に空白2つ + 改行 (Markdown 改行)
   const formattedComment = comment
@@ -35,7 +46,7 @@ function buildAppendMarkdown(
 
 **${time}** [🚶‍♂️現在地](${locationUrl})
 
-![](${imageUrl})
+![${datetime}](${imageUrl})
 
 ${formattedComment}
 `;
