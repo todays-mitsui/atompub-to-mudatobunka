@@ -49,6 +49,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   const { photo_base64, comment, location_url } = body;
 
+  console.log(JSON.stringify({
+    time: new Date().toISOString(),
+    has_photo: !!photo_base64,
+    comment,
+    location_url,
+  }));
+
   if (!comment || typeof comment !== "string") {
     return jsonResponse({ error: "comment is required" }, 400);
   }
