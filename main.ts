@@ -52,6 +52,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   console.log(JSON.stringify({
     time: new Date().toISOString(),
     has_photo: !!photo_base64,
+    photo_base64: photo_base64 ? `${photo_base64.slice(0, 30)}...` : null,
     comment,
     location_url,
   }));
