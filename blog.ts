@@ -36,21 +36,21 @@ function buildAppendMarkdown(
 
   if (imageUrl) {
     return `
----
-
 **${time}** [🚶‍♂️現在地](${locationUrl})
 
 <div style="max-width:100%;margin:0 auto"><img src="${imageUrl}" alt="${datetime}" loading="lazy"></div>
 
 ${formattedComment}
+
+---
 `;
   } else {
     return `
----
-
 **${time}** [🚶‍♂️現在地](${locationUrl})
 
 ${formattedComment}
+
+---
 `;
   }
 }
