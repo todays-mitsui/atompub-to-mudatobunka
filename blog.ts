@@ -38,7 +38,7 @@ function buildAppendMarkdown(
     return `
 **${time}** [🚶‍♂️現在地](${locationUrl})
 
-<div style="max-width:100%;margin:0 auto"><img src="${imageUrl}" alt="${datetime}" loading="lazy"></div>
+<div style="max-width:100%;margin:0 auto">![${datetime}](${imageUrl})</div>
 
 ${formattedComment}
 
