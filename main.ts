@@ -3,14 +3,14 @@
  * Deno Deploy で動作する POST /append ハンドラ
  */
 
-import { uploadPhoto } from "./fotolife.ts";
-import { appendToEntry, buildAppendMarkdown } from "./blog.ts";
+import { uploadPhoto } from "./src/fotolife.ts";
+import { appendToEntry, buildAppendMarkdown } from "./src/blog.ts";
 import {
   jsonResponse,
   parseAndValidateBody,
   resolveConfig,
   verifyAuth,
-} from "./handler.ts";
+} from "./src/handler.ts";
 
 Deno.serve(async (req: Request): Promise<Response> => {
   const url = new URL(req.url);

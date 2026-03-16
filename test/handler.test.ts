@@ -1,5 +1,9 @@
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/assert_equals.ts";
-import { parseAndValidateBody, resolveConfig, verifyAuth } from "./handler.ts";
+import {
+  parseAndValidateBody,
+  resolveConfig,
+  verifyAuth,
+} from "../src/handler.ts";
 
 // --- verifyAuth ---
 

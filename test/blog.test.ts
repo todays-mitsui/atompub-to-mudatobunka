@@ -6,7 +6,7 @@ import {
   formatDateTime,
   formatTime,
   unescapeXml,
-} from "./blog.ts";
+} from "../src/blog.ts";
 
 // --- escapeXml ---
 

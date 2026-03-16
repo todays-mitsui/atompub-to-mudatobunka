@@ -1,6 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/assert_equals.ts";
 import { assertMatch } from "https://deno.land/std@0.224.0/assert/assert_match.ts";
-import { buildWsseHeaders } from "./wsse.ts";
+import { buildWsseHeaders } from "../src/wsse.ts";
 
 function toBase64(bytes: Uint8Array): string {
   let binary = "";

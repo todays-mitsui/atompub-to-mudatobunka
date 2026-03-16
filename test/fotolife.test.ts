@@ -1,6 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/assert_equals.ts";
 import { assertThrows } from "https://deno.land/std@0.224.0/assert/assert_throws.ts";
-import { detectMimeType, extractFotolifeSyntax } from "./fotolife.ts";
+import { detectMimeType, extractFotolifeSyntax } from "../src/fotolife.ts";
 
 // --- detectMimeType ---
 
