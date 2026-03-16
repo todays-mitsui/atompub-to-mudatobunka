@@ -129,4 +129,4 @@ function unescapeXml(str: string): string {
     .replace(/&amp;/g, "&");
 }
 
-export { buildAppendMarkdown, formatTime };
+export { buildAppendMarkdown, entryUrl, escapeXml, formatDateTime, formatTime, unescapeXml };

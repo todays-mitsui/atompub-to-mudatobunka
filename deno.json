@@ -2,6 +2,7 @@
   "imports": {},
   "tasks": {
     "dev": "deno run --allow-net --allow-env --env-file=.env main.ts",
-    "deploy": "deployctl deploy --prod main.ts"
+    "deploy": "deployctl deploy --prod main.ts",
+    "test": "deno test --allow-env"
   }
 }
