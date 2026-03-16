@@ -62,8 +62,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
   );
 
   // 記事に追記
+  let entryUrl: string | null;
   try {
-    await appendToEntry(
+    entryUrl = await appendToEntry(
       hatenaId,
       apiKey,
       blogId,
@@ -75,5 +76,5 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return jsonResponse({ error: "Failed to update blog entry" }, 502);
   }
 
-  return jsonResponse({ ok: true }, 200);
+  return jsonResponse({ ok: true, entryUrl }, 200);
 });

@@ -3,6 +3,7 @@ import {
   buildAppendMarkdown,
   entryUrl,
   escapeXml,
+  extractAlternateLink,
   formatDateTime,
   formatTime,
   unescapeXml,
@@ -45,6 +46,32 @@ Deno.test("formatDateTime: YYYY-MM-DDTHH:MM:SS 形式の文字列を返す", () 
   const date = new Date("2024-01-15T03:05:30Z");
   const result = formatDateTime(date);
   assertEquals(result, "2024-01-15 12:05:30");
+});
+
+// --- extractAlternateLink ---
+
+Deno.test("extractAlternateLink: rel が先のパターンで href を抽出できる", () => {
+  const xml =
+    `<link rel="alternate" type="text/html" href="https://example.hatenablog.com/entry/2024/01/15/120530"/>`;
+  assertEquals(
+    extractAlternateLink(xml),
+    "https://example.hatenablog.com/entry/2024/01/15/120530",
+  );
+});
+
+Deno.test("extractAlternateLink: href が先のパターンで href を抽出できる", () => {
+  const xml =
+    `<link href="https://example.hatenablog.com/entry/2024/01/15/120530" rel="alternate" type="text/html"/>`;
+  assertEquals(
+    extractAlternateLink(xml),
+    "https://example.hatenablog.com/entry/2024/01/15/120530",
+  );
+});
+
+Deno.test("extractAlternateLink: alternate がない場合は null", () => {
+  const xml =
+    `<link rel="edit" href="https://blog.hatena.ne.jp/user/blog/atom/entry/123"/>`;
+  assertEquals(extractAlternateLink(xml), null);
 });
 
 // --- entryUrl ---

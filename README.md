@@ -30,7 +30,7 @@ cp .env.example .env
 | `HATENA_ID`          | はてな ID（ログイン名）                          |
 | `HATENA_API_KEY`     | ブログ管理画面 → 設定 → 詳細設定 → AtomPub       |
 | `HATENA_BLOG_ID`     | ブログのドメイン（例: `example.hatenablog.com`） |
-| `WEBHOOK_SECRET`     | 任意の文字列（リクエスト元と共有する）  |
+| `WEBHOOK_SECRET`     | 任意の文字列（リクエスト元と共有する）           |
 | `ENTRY_ID_WHITELIST` | 許可する記事 ID（カンマ区切りで複数指定可）      |
 
 ### 2. ローカル起動

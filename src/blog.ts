@@ -62,13 +62,24 @@ ${formattedComment}
   }
 }
 
+/**
+ * XML から <link rel="alternate" href="..."> の href を抽出する。
+ */
+export function extractAlternateLink(xml: string): string | null {
+  const match = xml.match(/<link\s[^>]*rel="alternate"[^>]*href="([^"]+)"/);
+  if (match) return match[1];
+  // href が rel より先に来るパターン
+  const match2 = xml.match(/<link\s[^>]*href="([^"]+)"[^>]*rel="alternate"/);
+  return match2 ? match2[1] : null;
+}
+
 export async function appendToEntry(
   hatenaId: string,
   apiKey: string,
   blogId: string,
   entryId: string,
   appendHtml: string,
-): Promise<void> {
+): Promise<string | null> {
   const url = entryUrl(hatenaId, blogId, entryId);
 
   // GET existing entry
@@ -81,6 +92,7 @@ export async function appendToEntry(
   }
 
   const xml = await getRes.text();
+  const alternateLink = extractAlternateLink(xml);
 
   // Extract content (type and body)
   const contentMatch = xml.match(/<content([^>]*)>([\s\S]*?)<\/content>/);
@@ -119,6 +131,8 @@ export async function appendToEntry(
     const text = await putRes.text();
     throw new Error(`Blog PUT failed: ${putRes.status} ${text}`);
   }
+
+  return alternateLink;
 }
 
 export function escapeXml(str: string): string {
