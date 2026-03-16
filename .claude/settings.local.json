@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "WebFetch(domain:help.hatenablog.com)"
+      "WebFetch(domain:help.hatenablog.com)",
+      "WebFetch(domain:developer.hatena.ne.jp)"
     ]
   }
 }
