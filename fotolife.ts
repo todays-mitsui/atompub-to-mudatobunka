@@ -10,9 +10,10 @@ export async function uploadPhoto(
   apiKey: string,
   base64: string,
 ): Promise<string> {
+  const title = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
   const body = `<?xml version="1.0" encoding="utf-8"?>
 <entry xmlns="http://www.w3.org/2005/Atom">
-  <title>walk-log</title>
+  <title>${title}</title>
   <content type="image/jpeg">${base64}</content>
 </entry>`;
 
