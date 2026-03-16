@@ -5,28 +5,27 @@
 
 import { buildWsseHeaders } from "./wsse.ts";
 
-function entryUrl(hatenaId: string, blogId: string, entryId: string): string {
+export function entryUrl(hatenaId: string, blogId: string, entryId: string): string {
   return `https://blog.hatena.ne.jp/${hatenaId}/${blogId}/atom/entry/${entryId}`;
 }
 
 const TZ = "Asia/Tokyo";
 
-function formatTime(date: Date): string {
+export function formatTime(date: Date): string {
   return date.toLocaleString("sv-SE", { timeZone: TZ, timeStyle: "short" });
 }
 
-function formatDateTime(date: Date): string {
+export function formatDateTime(date: Date): string {
   return date.toLocaleString("sv-SE", { timeZone: TZ, dateStyle: "short", timeStyle: "medium" });
 }
 
-function buildAppendMarkdown(
+export function buildAppendMarkdown(
   locationUrl: string,
-  imageUrl: string | null,
+  fotolifeSyntax: string | null,
   comment: string,
   now: Date,
 ): string {
   const time = formatTime(now);
-  const datetime = formatDateTime(now);
 
   // 複数行のコメントは各行末に空白2つ + 改行 (Markdown 改行)
   const formattedComment = comment
@@ -34,11 +33,11 @@ function buildAppendMarkdown(
     .map((line, i, arr) => i < arr.length - 1 ? line + "  " : line)
     .join("\n");
 
-  if (imageUrl) {
+  if (fotolifeSyntax) {
     return `
 **${time}** [🚶‍♂️現在地](${locationUrl})
 
-![${datetime}](${imageUrl})
+${fotolifeSyntax}
 
 ${formattedComment}
 
@@ -111,7 +110,7 @@ export async function appendToEntry(
   }
 }
 
-function escapeXml(str: string): string {
+export function escapeXml(str: string): string {
   return str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -120,7 +119,7 @@ function escapeXml(str: string): string {
     .replace(/'/g, "&apos;");
 }
 
-function unescapeXml(str: string): string {
+export function unescapeXml(str: string): string {
   return str
     .replace(/&gt;/g, ">")
     .replace(/&lt;/g, "<")
@@ -129,4 +128,3 @@ function unescapeXml(str: string): string {
     .replace(/&amp;/g, "&");
 }
 
-export { buildAppendMarkdown, entryUrl, escapeXml, formatDateTime, formatTime, unescapeXml };

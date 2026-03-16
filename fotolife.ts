@@ -31,10 +31,23 @@ export async function uploadPhoto(
   }
 
   const xml = await res.text();
-  const match = xml.match(/<hatena:imageurl>([^<]+)<\/hatena:imageurl>/);
-  if (!match) {
-    throw new Error(`Failed to extract image URL from Fotolife response: ${xml}`);
+  return extractFotolifeSyntax(xml);
+}
+
+/**
+ * フォトライフ API レスポンス XML から はてな記法を抽出する。
+ * - <hatena:syntax> の値を取り出す
+ * - :image → :plain に差し替える
+ * - [...] で囲んで返す
+ */
+export function extractFotolifeSyntax(xml: string): string {
+  const syntaxMatch = xml.match(/<hatena:syntax>([^<]+)<\/hatena:syntax>/);
+  if (!syntaxMatch) {
+    throw new Error(`Failed to extract syntax from Fotolife response: ${xml}`);
   }
 
-  return match[1];
+  // API は :image で返すが、ブログ埋め込みには :plain を使いたい
+  // <hatena:syntax> の値にブラケットは含まれないので [...] で囲む
+  return "[" + syntaxMatch[1].replace(/:image$/, ":plain") + "]";
 }
+

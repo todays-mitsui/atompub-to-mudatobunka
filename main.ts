@@ -134,10 +134,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
   const { hatenaId, apiKey, blogId, entryId: resolvedEntryId } = configResult;
 
   // 画像アップロード（photo_base64 が省略された場合はスキップ）
-  let imageUrl: string | null = null;
+  let fotolifeSyntax: string | null = null;
   if (photo_base64 && typeof photo_base64 === "string") {
     try {
-      imageUrl = await uploadPhoto(hatenaId, apiKey, photo_base64);
+      fotolifeSyntax = await uploadPhoto(hatenaId, apiKey, photo_base64);
     } catch (e) {
       console.error("uploadPhoto error:", e);
       return jsonResponse({ error: "Failed to upload photo" }, 502);
@@ -146,7 +146,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   // Markdown ブロック生成
   const now = new Date();
-  const appendMarkdown = buildAppendMarkdown(location_url, imageUrl, comment, now);
+  const appendMarkdown = buildAppendMarkdown(location_url, fotolifeSyntax, comment, now);
 
   // 記事に追記
   try {
@@ -156,5 +156,5 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return jsonResponse({ error: "Failed to update blog entry" }, 502);
   }
 
-  return jsonResponse({ ok: true, imageUrl }, 200);
+  return jsonResponse({ ok: true }, 200);
 });

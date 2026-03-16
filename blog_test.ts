@@ -59,11 +59,11 @@ Deno.test("entryUrl: 正しい URL を組み立てる", () => {
 
 // --- buildAppendMarkdown ---
 
-Deno.test("buildAppendMarkdown: imageUrl ありの場合", () => {
+Deno.test("buildAppendMarkdown: フォトライフ記法ありの場合", () => {
   const date = new Date("2024-01-15T03:05:30Z");
   const result = buildAppendMarkdown(
     "https://maps.example.com/loc",
-    "https://img.example.com/photo.jpg",
+    "[f:id:todays_mitsui:20240115120530j:plain]",
     "テストコメント",
     date,
   );
@@ -71,7 +71,7 @@ Deno.test("buildAppendMarkdown: imageUrl ありの場合", () => {
   const expected = `
 **12:05** [🚶‍♂️現在地](https://maps.example.com/loc)
 
-![2024-01-15 12:05:30](https://img.example.com/photo.jpg)
+[f:id:todays_mitsui:20240115120530j:plain]
 
 テストコメント
 
@@ -80,7 +80,7 @@ Deno.test("buildAppendMarkdown: imageUrl ありの場合", () => {
   assertEquals(result, expected);
 });
 
-Deno.test("buildAppendMarkdown: imageUrl なしの場合", () => {
+Deno.test("buildAppendMarkdown: フォトライフ記法なしの場合", () => {
   const date = new Date("2024-01-15T03:05:30Z");
   const result = buildAppendMarkdown(
     "https://maps.example.com/loc",
