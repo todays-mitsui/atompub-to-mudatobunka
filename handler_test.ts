@@ -94,7 +94,7 @@ Deno.test("parseAndValidateBody: 正常なボディでバリデーション済�
       comment: "hello",
       location_url: "https://example.com",
       photo_base64: "abc",
-      entry_id: "123",
+      entry_id: "17179246901362733954",
     }),
     headers: { "Content-Type": "application/json" },
   });
@@ -104,8 +104,23 @@ Deno.test("parseAndValidateBody: 正常なボディでバリデーション済�
     comment: "hello",
     location_url: "https://example.com",
     photo_base64: "abc",
-    entry_id: "123",
+    entry_id: "17179246901362733954",
   });
+});
+
+Deno.test("parseAndValidateBody: ホワイトリスト外の entry_id で 403", async () => {
+  const req = new Request("http://localhost/append", {
+    method: "POST",
+    body: JSON.stringify({
+      comment: "hello",
+      location_url: "https://example.com",
+      entry_id: "9999999999999999999",
+    }),
+    headers: { "Content-Type": "application/json" },
+  });
+  const res = await parseAndValidateBody(req);
+  assertEquals(res instanceof Response, true);
+  assertEquals((res as Response).status, 403);
 });
 
 Deno.test("parseAndValidateBody: photo_base64 と entry_id は省略可", async () => {
@@ -119,8 +134,8 @@ Deno.test("parseAndValidateBody: photo_base64 と entry_id は省略可", async 
   assertEquals(res, {
     comment: "hello",
     location_url: "https://example.com",
-    photo_base64: undefined,
-    entry_id: undefined,
+    photo_base64: null,
+    entry_id: null,
   });
 });
 
@@ -142,7 +157,7 @@ function deleteConfigEnv() {
 
 Deno.test("resolveConfig: 環境変数不足で 500", () => {
   deleteConfigEnv();
-  const res = resolveConfig();
+  const res = resolveConfig(null);
   assertEquals(res instanceof Response, true);
   assertEquals((res as Response).status, 500);
 });
@@ -150,7 +165,7 @@ Deno.test("resolveConfig: 環境変数不足で 500", () => {
 Deno.test("resolveConfig: entry_id 未指定で ENTRY_ID にフォールバック", () => {
   setConfigEnv();
   try {
-    const res = resolveConfig();
+    const res = resolveConfig(null);
     assertEquals(res instanceof Response, false);
     assertEquals(res, {
       hatenaId: "testuser",
@@ -174,13 +189,3 @@ Deno.test("resolveConfig: entry_id 指定でそちらを優先", () => {
   }
 });
 
-Deno.test("resolveConfig: ホワイトリスト外の entry_id で 403", () => {
-  setConfigEnv();
-  try {
-    const res = resolveConfig("9999999999999999999");
-    assertEquals(res instanceof Response, true);
-    assertEquals((res as Response).status, 403);
-  } finally {
-    deleteConfigEnv();
-  }
-});

@@ -38,7 +38,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   // 画像アップロード（photo_base64 が省略された場合はスキップ）
   let fotolifeSyntax: string | null = null;
-  if (photo_base64 && typeof photo_base64 === "string") {
+  if (photo_base64 != null) {
     try {
       fotolifeSyntax = await uploadPhoto(hatenaId, apiKey, photo_base64);
     } catch (e) {
