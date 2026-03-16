@@ -11,7 +11,7 @@ import {
 // --- escapeXml ---
 
 Deno.test("escapeXml: 5種の実体参照が正しくエスケープされる", () => {
-  assertEquals(escapeXml('&<>"\''), "&amp;&lt;&gt;&quot;&apos;");
+  assertEquals(escapeXml("&<>\"'"), "&amp;&lt;&gt;&quot;&apos;");
 });
 
 Deno.test("escapeXml: &amp; が二重エスケープされる", () => {
@@ -21,11 +21,11 @@ Deno.test("escapeXml: &amp; が二重エスケープされる", () => {
 // --- unescapeXml ---
 
 Deno.test("unescapeXml: 5種の実体参照が正しく復元される", () => {
-  assertEquals(unescapeXml("&amp;&lt;&gt;&quot;&apos;"), '&<>"\'');
+  assertEquals(unescapeXml("&amp;&lt;&gt;&quot;&apos;"), "&<>\"'");
 });
 
 Deno.test("unescapeXml: escapeXml → unescapeXml のラウンドトリップ", () => {
-  const original = 'Hello <world> & "foo" \'bar\'';
+  const original = "Hello <world> & \"foo\" 'bar'";
   assertEquals(unescapeXml(escapeXml(original)), original);
 });
 

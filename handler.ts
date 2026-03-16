@@ -7,7 +7,7 @@ export interface ValidBody {
   comment: string;
   location_url: string;
   photo_base64: string | null;
-  entry_id: string | null;
+  entry_id: string;
 }
 
 export interface ResolvedConfig {
@@ -30,11 +30,6 @@ export function jsonResponse(body: unknown, status: number): Response {
   });
 }
 
-const ENTRY_ID_WHITELIST = [
-  "17179246901362733954",
-  "17179246901362734279",
-];
-
 export function verifyAuth(req: Request): Response | null {
   let webhookSecret: string;
   try {
@@ -53,8 +48,15 @@ export function verifyAuth(req: Request): Response | null {
   return null;
 }
 
-export async function parseAndValidateBody(req: Request): Promise<ValidBody | Response> {
-  let body: { photo_base64?: string; comment?: string; location_url?: string; entry_id?: string };
+export async function parseAndValidateBody(
+  req: Request,
+): Promise<ValidBody | Response> {
+  let body: {
+    photo_base64?: string;
+    comment?: string;
+    location_url?: string;
+    entry_id?: string;
+  };
   try {
     body = await req.json();
   } catch {
@@ -70,7 +72,20 @@ export async function parseAndValidateBody(req: Request): Promise<ValidBody | Re
     return jsonResponse({ error: "location_url is required" }, 400);
   }
 
-  if (entry_id && !ENTRY_ID_WHITELIST.includes(entry_id)) {
+  if (!entry_id || typeof entry_id !== "string") {
+    return jsonResponse({ error: "entry_id is required" }, 400);
+  }
+
+  let whitelist: string[];
+  try {
+    whitelist = getEnv("ENTRY_ID_WHITELIST").split(",").map((s) => s.trim())
+      .filter((s) => s);
+  } catch (e) {
+    console.error(e);
+    return jsonResponse({ error: "Server configuration error" }, 500);
+  }
+
+  if (!whitelist.includes(entry_id)) {
     return jsonResponse({ error: "entry_id is not allowed" }, 403);
   }
 
@@ -78,23 +93,20 @@ export async function parseAndValidateBody(req: Request): Promise<ValidBody | Re
     comment,
     location_url,
     photo_base64: photo_base64 || null,
-    entry_id: entry_id || null,
+    entry_id,
   };
 }
 
-export function resolveConfig(entryId: string | null): ResolvedConfig | Response {
-  let hatenaId: string, apiKey: string, blogId: string, defaultEntryId: string;
+export function resolveConfig(entryId: string): ResolvedConfig | Response {
+  let hatenaId: string, apiKey: string, blogId: string;
   try {
     hatenaId = getEnv("HATENA_ID");
     apiKey = getEnv("HATENA_API_KEY");
     blogId = getEnv("HATENA_BLOG_ID");
-    defaultEntryId = getEnv("ENTRY_ID");
   } catch (e) {
     console.error(e);
     return jsonResponse({ error: "Server configuration error" }, 500);
   }
 
-  const resolvedEntryId = entryId ?? defaultEntryId;
-
-  return { hatenaId, apiKey, blogId, entryId: resolvedEntryId };
+  return { hatenaId, apiKey, blogId, entryId };
 }

@@ -5,7 +5,11 @@
 
 import { buildWsseHeaders } from "./wsse.ts";
 
-export function entryUrl(hatenaId: string, blogId: string, entryId: string): string {
+export function entryUrl(
+  hatenaId: string,
+  blogId: string,
+  entryId: string,
+): string {
   return `https://blog.hatena.ne.jp/${hatenaId}/${blogId}/atom/entry/${entryId}`;
 }
 
@@ -16,7 +20,11 @@ export function formatTime(date: Date): string {
 }
 
 export function formatDateTime(date: Date): string {
-  return date.toLocaleString("sv-SE", { timeZone: TZ, dateStyle: "short", timeStyle: "medium" });
+  return date.toLocaleString("sv-SE", {
+    timeZone: TZ,
+    dateStyle: "short",
+    timeStyle: "medium",
+  });
 }
 
 export function buildAppendMarkdown(
@@ -92,7 +100,10 @@ export async function appendToEntry(
       /<content([^>]*)>[\s\S]*?<\/content>/,
       `<content${contentAttrs}>${escapeXml(newBody)}</content>`,
     )
-    .replace(/<updated>[^<]*<\/updated>/, `<updated>${now.toISOString()}</updated>`);
+    .replace(
+      /<updated>[^<]*<\/updated>/,
+      `<updated>${now.toISOString()}</updated>`,
+    );
 
   // PUT
   const putHeaders = await buildWsseHeaders(hatenaId, apiKey);
@@ -127,4 +138,3 @@ export function unescapeXml(str: string): string {
     .replace(/&apos;/g, "'")
     .replace(/&amp;/g, "&");
 }
-

@@ -10,12 +10,24 @@ function toBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
-function parseXWsse(xwsse: string): { username: string; passwordDigest: string; nonce: string; created: string } {
+function parseXWsse(
+  xwsse: string,
+): {
+  username: string;
+  passwordDigest: string;
+  nonce: string;
+  created: string;
+} {
   const match = xwsse.match(
     /^UsernameToken Username="([^"]+)", PasswordDigest="([^"]+)", Nonce="([^"]+)", Created="([^"]+)"$/,
   );
   if (!match) throw new Error(`Failed to parse X-WSSE: ${xwsse}`);
-  return { username: match[1], passwordDigest: match[2], nonce: match[3], created: match[4] };
+  return {
+    username: match[1],
+    passwordDigest: match[2],
+    nonce: match[3],
+    created: match[4],
+  };
 }
 
 Deno.test("buildWsseHeaders: X-WSSE ヘッダを含む", async () => {
@@ -45,11 +57,16 @@ Deno.test("buildWsseHeaders: PasswordDigest が正しく計算されている", 
   const parsed = parseXWsse(xwsse);
 
   // nonce と created をパースし、同じロジックでダイジェストを再計算
-  const nonceBytes = Uint8Array.from(atob(parsed.nonce), (c) => c.charCodeAt(0));
+  const nonceBytes = Uint8Array.from(
+    atob(parsed.nonce),
+    (c) => c.charCodeAt(0),
+  );
   const createdBytes = new TextEncoder().encode(parsed.created);
   const apiKeyBytes = new TextEncoder().encode(apiKey);
 
-  const concat = new Uint8Array(nonceBytes.length + createdBytes.length + apiKeyBytes.length);
+  const concat = new Uint8Array(
+    nonceBytes.length + createdBytes.length + apiKeyBytes.length,
+  );
   concat.set(nonceBytes, 0);
   concat.set(createdBytes, nonceBytes.length);
   concat.set(apiKeyBytes, nonceBytes.length + createdBytes.length);
@@ -65,7 +82,10 @@ Deno.test("buildWsseHeaders: Nonce が16バイト（Base64デコード後）", a
   const xwsse = headers.get("X-WSSE")!;
   const parsed = parseXWsse(xwsse);
 
-  const nonceBytes = Uint8Array.from(atob(parsed.nonce), (c) => c.charCodeAt(0));
+  const nonceBytes = Uint8Array.from(
+    atob(parsed.nonce),
+    (c) => c.charCodeAt(0),
+  );
   assertEquals(nonceBytes.length, 16);
 });
 

@@ -5,7 +5,8 @@ import { extractFotolifeSyntax } from "./fotolife.ts";
 // --- extractFotolifeSyntax ---
 
 Deno.test("extractFotolifeSyntax: :image を :plain に差し替える", () => {
-  const xml = `<hatena:syntax>f:id:todays_mitsui:20260314070810j:image</hatena:syntax>`;
+  const xml =
+    `<hatena:syntax>f:id:todays_mitsui:20260314070810j:image</hatena:syntax>`;
   assertEquals(
     extractFotolifeSyntax(xml),
     "[f:id:todays_mitsui:20260314070810j:plain]",
@@ -13,7 +14,8 @@ Deno.test("extractFotolifeSyntax: :image を :plain に差し替える", () => {
 });
 
 Deno.test("extractFotolifeSyntax: :plain はそのまま通す", () => {
-  const xml = `<hatena:syntax>f:id:todays_mitsui:20260314070810j:plain</hatena:syntax>`;
+  const xml =
+    `<hatena:syntax>f:id:todays_mitsui:20260314070810j:plain</hatena:syntax>`;
   assertEquals(
     extractFotolifeSyntax(xml),
     "[f:id:todays_mitsui:20260314070810j:plain]",

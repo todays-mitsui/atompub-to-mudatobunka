@@ -39,7 +39,7 @@ export async function buildWsseHeaders(
     `UsernameToken Username="${hatenaId}", PasswordDigest="${passwordDigest}", Nonce="${nonce}", Created="${created}"`;
 
   const headers = new Headers();
-  headers.set("Authorization", "WSSE profile=\"UsernameToken\"");
+  headers.set("Authorization", 'WSSE profile="UsernameToken"');
   headers.set("X-WSSE", wsseValue);
 
   return headers;

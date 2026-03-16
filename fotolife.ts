@@ -50,4 +50,3 @@ export function extractFotolifeSyntax(xml: string): string {
   // <hatena:syntax> の値にブラケットは含まれないので [...] で囲む
   return "[" + syntaxMatch[1].replace(/:image$/, ":plain") + "]";
 }
-

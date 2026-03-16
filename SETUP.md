@@ -8,13 +8,13 @@ cp .env.example .env
 
 `.env` を編集して以下の値を設定する:
 
-| 変数名 | 値の確認場所 |
-|--------|-------------|
-| `HATENA_ID` | はてな ID（ログイン名） |
-| `HATENA_API_KEY` | ブログ管理画面 → 設定 → 詳細設定 → AtomPub |
+| 変数名           | 値の確認場所                                     |
+| ---------------- | ------------------------------------------------ |
+| `HATENA_ID`      | はてな ID（ログイン名）                          |
+| `HATENA_API_KEY` | ブログ管理画面 → 設定 → 詳細設定 → AtomPub       |
 | `HATENA_BLOG_ID` | ブログのドメイン（例: `example.hatenablog.com`） |
-| `ENTRY_ID` | 旅ログ専用記事の URL 末尾の数値 |
-| `WEBHOOK_SECRET` | 任意の文字列（iPhone ショートカットと共有する） |
+| `ENTRY_ID`       | 旅ログ専用記事の URL 末尾の数値                  |
+| `WEBHOOK_SECRET` | 任意の文字列（iPhone ショートカットと共有する）  |
 
 ## 2. ローカル起動
 
@@ -68,7 +68,8 @@ curl -X POST http://localhost:8000/append \
 deno task deploy
 ```
 
-デプロイ後、Deno Deploy のダッシュボードで環境変数（`.env` と同じ内容）を設定する。
+デプロイ後、Deno Deploy のダッシュボードで環境変数（`.env`
+と同じ内容）を設定する。
 
 ## 5. iPhone ショートカットの設定
 

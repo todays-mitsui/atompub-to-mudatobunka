@@ -5,7 +5,12 @@
 
 import { uploadPhoto } from "./fotolife.ts";
 import { appendToEntry, buildAppendMarkdown } from "./blog.ts";
-import { jsonResponse, parseAndValidateBody, resolveConfig, verifyAuth } from "./handler.ts";
+import {
+  jsonResponse,
+  parseAndValidateBody,
+  resolveConfig,
+  verifyAuth,
+} from "./handler.ts";
 
 Deno.serve(async (req: Request): Promise<Response> => {
   const url = new URL(req.url);
@@ -49,11 +54,22 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   // Markdown ブロック生成
   const now = new Date();
-  const appendMarkdown = buildAppendMarkdown(location_url, fotolifeSyntax, comment, now);
+  const appendMarkdown = buildAppendMarkdown(
+    location_url,
+    fotolifeSyntax,
+    comment,
+    now,
+  );
 
   // 記事に追記
   try {
-    await appendToEntry(hatenaId, apiKey, blogId, resolvedEntryId, appendMarkdown);
+    await appendToEntry(
+      hatenaId,
+      apiKey,
+      blogId,
+      resolvedEntryId,
+      appendMarkdown,
+    );
   } catch (e) {
     console.error("appendToEntry error:", e);
     return jsonResponse({ error: "Failed to update blog entry" }, 502);
