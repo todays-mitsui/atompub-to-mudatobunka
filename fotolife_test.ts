@@ -1,6 +1,29 @@
 import { assertEquals } from "https://deno.land/std@0.224.0/assert/assert_equals.ts";
 import { assertThrows } from "https://deno.land/std@0.224.0/assert/assert_throws.ts";
-import { extractFotolifeSyntax } from "./fotolife.ts";
+import { detectMimeType, extractFotolifeSyntax } from "./fotolife.ts";
+
+// --- detectMimeType ---
+
+Deno.test("detectMimeType: JPEG を判定できる", () => {
+  // FF D8 FF E0 ... を base64 エンコードしたもの
+  const jpegBase64 = btoa(
+    String.fromCharCode(0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10),
+  );
+  assertEquals(detectMimeType(jpegBase64), "image/jpeg");
+});
+
+Deno.test("detectMimeType: PNG を判定できる", () => {
+  // 89 50 4E 47 0D 0A を base64 エンコードしたもの
+  const pngBase64 = btoa(
+    String.fromCharCode(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a),
+  );
+  assertEquals(detectMimeType(pngBase64), "image/png");
+});
+
+Deno.test("detectMimeType: 不正データは null を返す", () => {
+  const garbage = btoa("hello world");
+  assertEquals(detectMimeType(garbage), null);
+});
 
 // --- extractFotolifeSyntax ---
 
