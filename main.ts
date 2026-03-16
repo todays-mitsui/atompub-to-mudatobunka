@@ -1,6 +1,5 @@
 /**
- * 70km 徒歩旅実況システム — エントリポイント
- * Deno Deploy で動作する POST /append ハンドラ
+ * エントリポイント
  */
 
 import { uploadPhoto } from "./src/fotolife.ts";
