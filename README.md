@@ -12,7 +12,7 @@ src/
   handler.ts     認証・バリデーション・設定解決
   wsse.ts        WSSE 認証ヘッダ生成
 test/
-  *_test.ts      各モジュールのテスト
+  *.test.ts      各モジュールのテスト
 ```
 
 ## セットアップ
