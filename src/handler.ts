@@ -10,6 +10,14 @@ export interface ValidBody {
   entry_id: string;
 }
 
+export interface Env {
+  HATENA_ID?: string;
+  HATENA_API_KEY?: string;
+  HATENA_BLOG_ID?: string;
+  WEBHOOK_SECRET?: string;
+  ENTRY_ID_WHITELIST?: string;
+}
+
 export interface ResolvedConfig {
   hatenaId: string;
   apiKey: string;
@@ -17,8 +25,8 @@ export interface ResolvedConfig {
   entryId: string;
 }
 
-function getEnv(name: string): string {
-  const value = Deno.env.get(name);
+function getEnv(env: Env, name: keyof Env): string {
+  const value = env[name];
   if (!value) throw new Error(`Missing environment variable: ${name}`);
   return value;
 }
@@ -30,10 +38,10 @@ export function jsonResponse(body: unknown, status: number): Response {
   });
 }
 
-export function verifyAuth(req: Request): Response | null {
+export function verifyAuth(req: Request, env: Env): Response | null {
   let webhookSecret: string;
   try {
-    webhookSecret = getEnv("WEBHOOK_SECRET");
+    webhookSecret = getEnv(env, "WEBHOOK_SECRET");
   } catch (e) {
     console.error(e);
     return jsonResponse({ error: "Server configuration error" }, 500);
@@ -50,6 +58,7 @@ export function verifyAuth(req: Request): Response | null {
 
 export async function parseAndValidateBody(
   req: Request,
+  env: Env,
 ): Promise<ValidBody | Response> {
   let body: {
     photo_base64?: string;
@@ -78,7 +87,7 @@ export async function parseAndValidateBody(
 
   let whitelist: string[];
   try {
-    whitelist = getEnv("ENTRY_ID_WHITELIST").split(",").map((s) => s.trim())
+    whitelist = getEnv(env, "ENTRY_ID_WHITELIST").split(",").map((s) => s.trim())
       .filter((s) => s);
   } catch (e) {
     console.error(e);
@@ -97,12 +106,15 @@ export async function parseAndValidateBody(
   };
 }
 
-export function resolveConfig(entryId: string): ResolvedConfig | Response {
+export function resolveConfig(
+  entryId: string,
+  env: Env,
+): ResolvedConfig | Response {
   let hatenaId: string, apiKey: string, blogId: string;
   try {
-    hatenaId = getEnv("HATENA_ID");
-    apiKey = getEnv("HATENA_API_KEY");
-    blogId = getEnv("HATENA_BLOG_ID");
+    hatenaId = getEnv(env, "HATENA_ID");
+    apiKey = getEnv(env, "HATENA_API_KEY");
+    blogId = getEnv(env, "HATENA_BLOG_ID");
   } catch (e) {
     console.error(e);
     return jsonResponse({ error: "Server configuration error" }, 500);

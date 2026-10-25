@@ -2,26 +2,35 @@
  * エントリポイント
  */
 
-import { uploadPhoto } from "./src/fotolife.ts";
+import {
+  detectOrientation,
+  type Orientation,
+  uploadPhoto,
+} from "./src/fotolife.ts";
 import { appendToEntry, buildAppendMarkdown } from "./src/blog.ts";
 import {
+  type Env,
   jsonResponse,
   parseAndValidateBody,
   resolveConfig,
   verifyAuth,
 } from "./src/handler.ts";
 
-Deno.serve(async (req: Request): Promise<Response> => {
+export default {
+  fetch: handleRequest,
+} satisfies ExportedHandler<Env>;
+
+async function handleRequest(req: Request, env: Env): Promise<Response> {
   const url = new URL(req.url);
 
   if (req.method !== "POST" || url.pathname !== "/append") {
     return jsonResponse({ error: "Not Found" }, 404);
   }
 
-  const authError = verifyAuth(req);
+  const authError = verifyAuth(req, env);
   if (authError) return authError;
 
-  const bodyResult = await parseAndValidateBody(req);
+  const bodyResult = await parseAndValidateBody(req, env);
   if (bodyResult instanceof Response) return bodyResult;
 
   const { photo_base64, comment, location_url, entry_id } = bodyResult;
@@ -35,14 +44,16 @@ Deno.serve(async (req: Request): Promise<Response> => {
     entry_id,
   }));
 
-  const configResult = resolveConfig(entry_id);
+  const configResult = resolveConfig(entry_id, env);
   if (configResult instanceof Response) return configResult;
 
   const { hatenaId, apiKey, blogId, entryId: resolvedEntryId } = configResult;
 
   // 画像アップロード（photo_base64 が省略された場合はスキップ）
   let fotolifeSyntax: string | null = null;
+  let orientation: Orientation | null = null;
   if (photo_base64 != null) {
+    orientation = detectOrientation(photo_base64);
     try {
       fotolifeSyntax = await uploadPhoto(hatenaId, apiKey, photo_base64);
     } catch (e) {
@@ -56,6 +67,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   const appendMarkdown = buildAppendMarkdown(
     location_url,
     fotolifeSyntax,
+    orientation,
     comment,
     now,
   );
@@ -76,4 +88,4 @@ Deno.serve(async (req: Request): Promise<Response> => {
   }
 
   return jsonResponse({ ok: true, entryUrl }, 200);
-});
+}

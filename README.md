@@ -1,11 +1,11 @@
 # AtomPub to mudatobunka
 
-はてなブログの記事に写真・コメント・位置情報を追記する Deno Deploy アプリ
+はてなブログの記事に写真・コメント・位置情報を追記する Cloudflare Workers アプリ
 
 ## ディレクトリ構成
 
 ```
-main.ts          エントリポイント（Deno.serve）
+main.ts          エントリポイント（Workers の fetch ハンドラ）
 src/
   blog.ts        はてなブログ AtomPub API（GET / PUT）
   fotolife.ts    はてなフォトライフ API（画像アップロード）
@@ -17,13 +17,14 @@ test/
 
 ## セットアップ
 
-### 1. 環境変数の設定
+### 1. 依存パッケージのインストールと環境変数の設定
 
 ```bash
-cp .env.example .env
+npm install
+cp .dev.vars.example .dev.vars
 ```
 
-`.env` を編集して以下の値を設定する:
+`.dev.vars` を編集して以下の値を設定する:
 
 | 変数名               | 説明                                             |
 | -------------------- | ------------------------------------------------ |
@@ -36,13 +37,13 @@ cp .env.example .env
 ### 2. ローカル起動
 
 ```bash
-deno task dev
+npm run dev
 ```
 
 ### 3. 動作確認
 
 ```bash
-curl -X POST http://localhost:8000/append \
+curl -X POST http://localhost:8787/append \
   -H "Authorization: Bearer {WEBHOOK_SECRET}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -61,7 +62,7 @@ curl -X POST http://localhost:8000/append \
 { "ok": true }
 ```
 
-はてなブログの該当記事末尾に以下の形式で追記される:
+はてなブログの該当記事に以下の形式で追記される。本文中に `<!-- +++ -->` があればその直前に、なければ本文末尾に追記する（マーカーは残るので、続けて追記すると時系列順に並ぶ）:
 
 ```
 ---
@@ -76,9 +77,25 @@ curl -X POST http://localhost:8000/append \
 ### 4. テスト
 
 ```bash
-deno task test
+npm test
+npm run typecheck
 ```
 
-### 5. Deno Deploy
+### 5. Cloudflare Workers へのデプロイ
 
-デプロイ後、Deno Deploy のダッシュボードで環境変数（`.env` と同じ内容）を設定する。
+```bash
+npx wrangler login
+npm run deploy
+```
+
+初回デプロイ後、環境変数（`.dev.vars` と同じ内容）をシークレットとして登録する:
+
+```bash
+npx wrangler secret put HATENA_ID
+npx wrangler secret put HATENA_API_KEY
+npx wrangler secret put HATENA_BLOG_ID
+npx wrangler secret put WEBHOOK_SECRET
+npx wrangler secret put ENTRY_ID_WHITELIST
+```
+
+Cloudflare のダッシュボード（Workers & Pages → 対象の Worker → Settings → Variables and Secrets）から設定してもよい。

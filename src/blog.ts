@@ -3,6 +3,7 @@
  * https://developer.hatena.ne.jp/ja/documents/blog/apis/atom
  */
 
+import type { Orientation } from "./fotolife.ts";
 import { buildWsseHeaders } from "./wsse.ts";
 
 export function entryUrl(
@@ -30,10 +31,20 @@ export function formatDateTime(date: Date): string {
 export function buildAppendMarkdown(
   locationUrl: string,
   fotolifeSyntax: string | null,
+  orientation: Orientation | null,
   comment: string,
   now: Date,
 ): string {
   const time = formatTime(now);
+
+  // 縦長 / 横長が分かる場合は div で囲む（div 内でも記法が展開されるよう前後に空行を入れる）
+  const image = fotolifeSyntax && orientation
+    ? `<div class="mudatobunka-image-${orientation}">
+
+${fotolifeSyntax}
+
+</div>`
+    : fotolifeSyntax;
 
   // 複数行のコメントは各行末に空白2つ + 改行 (Markdown 改行)
   const formattedComment = comment
@@ -41,11 +52,11 @@ export function buildAppendMarkdown(
     .map((line, i, arr) => i < arr.length - 1 ? line + "  " : line)
     .join("\n");
 
-  if (fotolifeSyntax) {
+  if (image) {
     return `
 **${time}** [🚶‍♂️現在地](${locationUrl})
 
-${fotolifeSyntax}
+${image}
 
 ${formattedComment}
 
@@ -71,6 +82,19 @@ export function extractAlternateLink(xml: string): string | null {
   // href が rel より先に来るパターン
   const match2 = xml.match(/<link\s[^>]*href="([^"]+)"[^>]*rel="alternate"/);
   return match2 ? match2[1] : null;
+}
+
+/** 本文中の追記位置を示すマーカー */
+export const APPEND_MARKER = "<!-- +++ -->";
+
+/**
+ * 本文にマーカーがあればその直前に、なければ末尾に追記する。
+ * マーカーは残すので、続けて追記すると時系列順に並ぶ。
+ */
+export function insertAppendix(body: string, appendix: string): string {
+  const index = body.indexOf(APPEND_MARKER);
+  if (index === -1) return body + appendix;
+  return body.slice(0, index) + appendix + body.slice(index);
 }
 
 export async function appendToEntry(
@@ -103,7 +127,7 @@ export async function appendToEntry(
   const contentAttrs = contentMatch[1];
   // Unescape XML entities to get actual Markdown text
   const existingBody = unescapeXml(contentMatch[2]);
-  const newBody = existingBody + appendHtml;
+  const newBody = insertAppendix(existingBody, appendHtml);
 
   // Replace <content> with new body and update <updated>
   const now = new Date();
