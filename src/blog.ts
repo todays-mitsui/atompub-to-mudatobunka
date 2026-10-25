@@ -3,6 +3,7 @@
  * https://developer.hatena.ne.jp/ja/documents/blog/apis/atom
  */
 
+import type { Orientation } from "./fotolife.ts";
 import { buildWsseHeaders } from "./wsse.ts";
 
 export function entryUrl(
@@ -30,10 +31,20 @@ export function formatDateTime(date: Date): string {
 export function buildAppendMarkdown(
   locationUrl: string,
   fotolifeSyntax: string | null,
+  orientation: Orientation | null,
   comment: string,
   now: Date,
 ): string {
   const time = formatTime(now);
+
+  // 縦長 / 横長が分かる場合は div で囲む（div 内でも記法が展開されるよう前後に空行を入れる）
+  const image = fotolifeSyntax && orientation
+    ? `<div class="mudatobunka-image-${orientation}">
+
+${fotolifeSyntax}
+
+</div>`
+    : fotolifeSyntax;
 
   // 複数行のコメントは各行末に空白2つ + 改行 (Markdown 改行)
   const formattedComment = comment
@@ -41,11 +52,11 @@ export function buildAppendMarkdown(
     .map((line, i, arr) => i < arr.length - 1 ? line + "  " : line)
     .join("\n");
 
-  if (fotolifeSyntax) {
+  if (image) {
     return `
 **${time}** [🚶‍♂️現在地](${locationUrl})
 
-${fotolifeSyntax}
+${image}
 
 ${formattedComment}
 

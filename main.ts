@@ -2,7 +2,11 @@
  * エントリポイント
  */
 
-import { uploadPhoto } from "./src/fotolife.ts";
+import {
+  detectOrientation,
+  type Orientation,
+  uploadPhoto,
+} from "./src/fotolife.ts";
 import { appendToEntry, buildAppendMarkdown } from "./src/blog.ts";
 import {
   type Env,
@@ -47,7 +51,9 @@ async function handleRequest(req: Request, env: Env): Promise<Response> {
 
   // 画像アップロード（photo_base64 が省略された場合はスキップ）
   let fotolifeSyntax: string | null = null;
+  let orientation: Orientation | null = null;
   if (photo_base64 != null) {
+    orientation = detectOrientation(photo_base64);
     try {
       fotolifeSyntax = await uploadPhoto(hatenaId, apiKey, photo_base64);
     } catch (e) {
@@ -61,6 +67,7 @@ async function handleRequest(req: Request, env: Env): Promise<Response> {
   const appendMarkdown = buildAppendMarkdown(
     location_url,
     fotolifeSyntax,
+    orientation,
     comment,
     now,
   );

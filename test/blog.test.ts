@@ -91,6 +91,7 @@ test("buildAppendMarkdown: フォトライフ記法ありの場合", () => {
   const result = buildAppendMarkdown(
     "https://maps.example.com/loc",
     "[f:id:todays_mitsui:20240115120530j:plain]",
+    null,
     "テストコメント",
     date,
   );
@@ -107,10 +108,50 @@ test("buildAppendMarkdown: フォトライフ記法ありの場合", () => {
   assert.deepEqual(result, expected);
 });
 
+test("buildAppendMarkdown: 縦長の写真は portrait の div で囲む", () => {
+  const date = new Date("2024-01-15T03:05:30Z");
+  const result = buildAppendMarkdown(
+    "https://maps.example.com/loc",
+    "[f:id:todays_mitsui:20240115120530j:plain]",
+    "portrait",
+    "テストコメント",
+    date,
+  );
+
+  const expected = `
+**12:05** [🚶‍♂️現在地](https://maps.example.com/loc)
+
+<div class="mudatobunka-image-portrait">
+
+[f:id:todays_mitsui:20240115120530j:plain]
+
+</div>
+
+テストコメント
+
+---
+`;
+  assert.deepEqual(result, expected);
+});
+
+test("buildAppendMarkdown: 横長の写真は landscape の div で囲む", () => {
+  const date = new Date("2024-01-15T03:05:30Z");
+  const result = buildAppendMarkdown(
+    "https://maps.example.com/loc",
+    "[f:id:todays_mitsui:20240115120530j:plain]",
+    "landscape",
+    "テストコメント",
+    date,
+  );
+
+  assert.include(result, '<div class="mudatobunka-image-landscape">');
+});
+
 test("buildAppendMarkdown: フォトライフ記法なしの場合", () => {
   const date = new Date("2024-01-15T03:05:30Z");
   const result = buildAppendMarkdown(
     "https://maps.example.com/loc",
+    null,
     null,
     "テストコメント",
     date,
@@ -130,6 +171,7 @@ test("buildAppendMarkdown: 複数行コメントに改行用空白が付く", ()
   const date = new Date("2024-01-15T03:05:30Z");
   const result = buildAppendMarkdown(
     "https://maps.example.com/loc",
+    null,
     null,
     "行1\n行2\n行3",
     date,
