@@ -6,6 +6,7 @@ import {
   extractAlternateLink,
   formatDateTime,
   formatTime,
+  insertAppendix,
   unescapeXml,
 } from "../src/blog.ts";
 
@@ -183,4 +184,35 @@ test("buildAppendMarkdown: 複数行コメントに改行用空白が付く", ()
   assert.deepEqual(commentStart !== -1, true);
   assert.deepEqual(lines[commentStart + 1], "行2  ");
   assert.deepEqual(lines[commentStart + 2], "行3");
+});
+
+// --- insertAppendix ---
+
+test("insertAppendix: マーカーがない場合は末尾に追記する", () => {
+  assert.deepEqual(insertAppendix("本文\n", "追記\n"), "本文\n追記\n");
+});
+
+test("insertAppendix: マーカーがある場合はマーカーの直前に追記する", () => {
+  const body = "前文\n<!-- +++ -->\n後文\n";
+  assert.deepEqual(
+    insertAppendix(body, "追記\n"),
+    "前文\n追記\n<!-- +++ -->\n後文\n",
+  );
+});
+
+test("insertAppendix: 続けて追記すると時系列順に並ぶ", () => {
+  const body = "前文\n<!-- +++ -->\n後文\n";
+  const once = insertAppendix(body, "追記1\n");
+  assert.deepEqual(
+    insertAppendix(once, "追記2\n"),
+    "前文\n追記1\n追記2\n<!-- +++ -->\n後文\n",
+  );
+});
+
+test("insertAppendix: マーカーが複数ある場合は最初のマーカーを使う", () => {
+  const body = "A\n<!-- +++ -->\nB\n<!-- +++ -->\n";
+  assert.deepEqual(
+    insertAppendix(body, "追記\n"),
+    "A\n追記\n<!-- +++ -->\nB\n<!-- +++ -->\n",
+  );
 });

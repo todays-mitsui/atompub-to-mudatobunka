@@ -84,6 +84,19 @@ export function extractAlternateLink(xml: string): string | null {
   return match2 ? match2[1] : null;
 }
 
+/** 本文中の追記位置を示すマーカー */
+export const APPEND_MARKER = "<!-- +++ -->";
+
+/**
+ * 本文にマーカーがあればその直前に、なければ末尾に追記する。
+ * マーカーは残すので、続けて追記すると時系列順に並ぶ。
+ */
+export function insertAppendix(body: string, appendix: string): string {
+  const index = body.indexOf(APPEND_MARKER);
+  if (index === -1) return body + appendix;
+  return body.slice(0, index) + appendix + body.slice(index);
+}
+
 export async function appendToEntry(
   hatenaId: string,
   apiKey: string,
@@ -114,7 +127,7 @@ export async function appendToEntry(
   const contentAttrs = contentMatch[1];
   // Unescape XML entities to get actual Markdown text
   const existingBody = unescapeXml(contentMatch[2]);
-  const newBody = existingBody + appendHtml;
+  const newBody = insertAppendix(existingBody, appendHtml);
 
   // Replace <content> with new body and update <updated>
   const now = new Date();
