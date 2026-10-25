@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.224.0/assert/assert_equals.ts";
+import { assert, test } from "vitest";
 import {
   buildAppendMarkdown,
   entryUrl,
@@ -11,74 +11,74 @@ import {
 
 // --- escapeXml ---
 
-Deno.test("escapeXml: 5種の実体参照が正しくエスケープされる", () => {
-  assertEquals(escapeXml("&<>\"'"), "&amp;&lt;&gt;&quot;&apos;");
+test("escapeXml: 5種の実体参照が正しくエスケープされる", () => {
+  assert.deepEqual(escapeXml("&<>\"'"), "&amp;&lt;&gt;&quot;&apos;");
 });
 
-Deno.test("escapeXml: &amp; が二重エスケープされる", () => {
-  assertEquals(escapeXml("&amp;"), "&amp;amp;");
+test("escapeXml: &amp; が二重エスケープされる", () => {
+  assert.deepEqual(escapeXml("&amp;"), "&amp;amp;");
 });
 
 // --- unescapeXml ---
 
-Deno.test("unescapeXml: 5種の実体参照が正しく復元される", () => {
-  assertEquals(unescapeXml("&amp;&lt;&gt;&quot;&apos;"), "&<>\"'");
+test("unescapeXml: 5種の実体参照が正しく復元される", () => {
+  assert.deepEqual(unescapeXml("&amp;&lt;&gt;&quot;&apos;"), "&<>\"'");
 });
 
-Deno.test("unescapeXml: escapeXml → unescapeXml のラウンドトリップ", () => {
+test("unescapeXml: escapeXml → unescapeXml のラウンドトリップ", () => {
   const original = "Hello <world> & \"foo\" 'bar'";
-  assertEquals(unescapeXml(escapeXml(original)), original);
+  assert.deepEqual(unescapeXml(escapeXml(original)), original);
 });
 
 // --- formatTime ---
 
-Deno.test("formatTime: HH:MM 形式の文字列を返す", () => {
+test("formatTime: HH:MM 形式の文字列を返す", () => {
   // 2024-01-15T03:05:00Z = JST 12:05
   const date = new Date("2024-01-15T03:05:00Z");
   const result = formatTime(date);
-  assertEquals(result, "12:05");
+  assert.deepEqual(result, "12:05");
 });
 
 // --- formatDateTime ---
 
-Deno.test("formatDateTime: YYYY-MM-DDTHH:MM:SS 形式の文字列を返す", () => {
+test("formatDateTime: YYYY-MM-DDTHH:MM:SS 形式の文字列を返す", () => {
   // 2024-01-15T03:05:30Z = JST 2024-01-15 12:05:30
   const date = new Date("2024-01-15T03:05:30Z");
   const result = formatDateTime(date);
-  assertEquals(result, "2024-01-15 12:05:30");
+  assert.deepEqual(result, "2024-01-15 12:05:30");
 });
 
 // --- extractAlternateLink ---
 
-Deno.test("extractAlternateLink: rel が先のパターンで href を抽出できる", () => {
+test("extractAlternateLink: rel が先のパターンで href を抽出できる", () => {
   const xml =
     `<link rel="alternate" type="text/html" href="https://example.hatenablog.com/entry/2024/01/15/120530"/>`;
-  assertEquals(
+  assert.deepEqual(
     extractAlternateLink(xml),
     "https://example.hatenablog.com/entry/2024/01/15/120530",
   );
 });
 
-Deno.test("extractAlternateLink: href が先のパターンで href を抽出できる", () => {
+test("extractAlternateLink: href が先のパターンで href を抽出できる", () => {
   const xml =
     `<link href="https://example.hatenablog.com/entry/2024/01/15/120530" rel="alternate" type="text/html"/>`;
-  assertEquals(
+  assert.deepEqual(
     extractAlternateLink(xml),
     "https://example.hatenablog.com/entry/2024/01/15/120530",
   );
 });
 
-Deno.test("extractAlternateLink: alternate がない場合は null", () => {
+test("extractAlternateLink: alternate がない場合は null", () => {
   const xml =
     `<link rel="edit" href="https://blog.hatena.ne.jp/user/blog/atom/entry/123"/>`;
-  assertEquals(extractAlternateLink(xml), null);
+  assert.deepEqual(extractAlternateLink(xml), null);
 });
 
 // --- entryUrl ---
 
-Deno.test("entryUrl: 正しい URL を組み立てる", () => {
+test("entryUrl: 正しい URL を組み立てる", () => {
   const url = entryUrl("myuser", "myblog.example.com", "123456");
-  assertEquals(
+  assert.deepEqual(
     url,
     "https://blog.hatena.ne.jp/myuser/myblog.example.com/atom/entry/123456",
   );
@@ -86,7 +86,7 @@ Deno.test("entryUrl: 正しい URL を組み立てる", () => {
 
 // --- buildAppendMarkdown ---
 
-Deno.test("buildAppendMarkdown: フォトライフ記法ありの場合", () => {
+test("buildAppendMarkdown: フォトライフ記法ありの場合", () => {
   const date = new Date("2024-01-15T03:05:30Z");
   const result = buildAppendMarkdown(
     "https://maps.example.com/loc",
@@ -104,10 +104,10 @@ Deno.test("buildAppendMarkdown: フォトライフ記法ありの場合", () => 
 
 ---
 `;
-  assertEquals(result, expected);
+  assert.deepEqual(result, expected);
 });
 
-Deno.test("buildAppendMarkdown: フォトライフ記法なしの場合", () => {
+test("buildAppendMarkdown: フォトライフ記法なしの場合", () => {
   const date = new Date("2024-01-15T03:05:30Z");
   const result = buildAppendMarkdown(
     "https://maps.example.com/loc",
@@ -123,10 +123,10 @@ Deno.test("buildAppendMarkdown: フォトライフ記法なしの場合", () => 
 
 ---
 `;
-  assertEquals(result, expected);
+  assert.deepEqual(result, expected);
 });
 
-Deno.test("buildAppendMarkdown: 複数行コメントに改行用空白が付く", () => {
+test("buildAppendMarkdown: 複数行コメントに改行用空白が付く", () => {
   const date = new Date("2024-01-15T03:05:30Z");
   const result = buildAppendMarkdown(
     "https://maps.example.com/loc",
@@ -138,7 +138,7 @@ Deno.test("buildAppendMarkdown: 複数行コメントに改行用空白が付く
   // 最終行以外に末尾空白2つが付く
   const lines = result.split("\n");
   const commentStart = lines.indexOf("行1  ");
-  assertEquals(commentStart !== -1, true);
-  assertEquals(lines[commentStart + 1], "行2  ");
-  assertEquals(lines[commentStart + 2], "行3");
+  assert.deepEqual(commentStart !== -1, true);
+  assert.deepEqual(lines[commentStart + 1], "行2  ");
+  assert.deepEqual(lines[commentStart + 2], "行3");
 });

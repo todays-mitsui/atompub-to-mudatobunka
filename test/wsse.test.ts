@@ -1,5 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.224.0/assert/assert_equals.ts";
-import { assertMatch } from "https://deno.land/std@0.224.0/assert/assert_match.ts";
+import { assert, test } from "vitest";
 import { buildWsseHeaders } from "../src/wsse.ts";
 
 function toBase64(bytes: Uint8Array): string {
@@ -30,27 +29,27 @@ function parseXWsse(
   };
 }
 
-Deno.test("buildWsseHeaders: X-WSSE ヘッダを含む", async () => {
+test("buildWsseHeaders: X-WSSE ヘッダを含む", async () => {
   const headers = await buildWsseHeaders("testuser", "testapikey");
   const xwsse = headers.get("X-WSSE");
-  assertEquals(xwsse !== null, true);
+  assert.deepEqual(xwsse !== null, true);
 });
 
-Deno.test("buildWsseHeaders: Authorization ヘッダが正しい", async () => {
+test("buildWsseHeaders: Authorization ヘッダが正しい", async () => {
   const headers = await buildWsseHeaders("testuser", "testapikey");
-  assertEquals(headers.get("Authorization"), 'WSSE profile="UsernameToken"');
+  assert.deepEqual(headers.get("Authorization"), 'WSSE profile="UsernameToken"');
 });
 
-Deno.test("buildWsseHeaders: X-WSSE が UsernameToken 形式に合致する", async () => {
+test("buildWsseHeaders: X-WSSE が UsernameToken 形式に合致する", async () => {
   const headers = await buildWsseHeaders("testuser", "testapikey");
   const xwsse = headers.get("X-WSSE")!;
-  assertMatch(
+  assert.match(
     xwsse,
     /^UsernameToken Username="testuser", PasswordDigest="[^"]+", Nonce="[^"]+", Created="[^"]+"$/,
   );
 });
 
-Deno.test("buildWsseHeaders: PasswordDigest が正しく計算されている", async () => {
+test("buildWsseHeaders: PasswordDigest が正しく計算されている", async () => {
   const apiKey = "testapikey";
   const headers = await buildWsseHeaders("testuser", apiKey);
   const xwsse = headers.get("X-WSSE")!;
@@ -74,10 +73,10 @@ Deno.test("buildWsseHeaders: PasswordDigest が正しく計算されている", 
   const digestBuffer = await crypto.subtle.digest("SHA-1", concat);
   const expectedDigest = toBase64(new Uint8Array(digestBuffer));
 
-  assertEquals(parsed.passwordDigest, expectedDigest);
+  assert.deepEqual(parsed.passwordDigest, expectedDigest);
 });
 
-Deno.test("buildWsseHeaders: Nonce が16バイト（Base64デコード後）", async () => {
+test("buildWsseHeaders: Nonce が16バイト（Base64デコード後）", async () => {
   const headers = await buildWsseHeaders("testuser", "testapikey");
   const xwsse = headers.get("X-WSSE")!;
   const parsed = parseXWsse(xwsse);
@@ -86,25 +85,25 @@ Deno.test("buildWsseHeaders: Nonce が16バイト（Base64デコード後）", a
     atob(parsed.nonce),
     (c) => c.charCodeAt(0),
   );
-  assertEquals(nonceBytes.length, 16);
+  assert.deepEqual(nonceBytes.length, 16);
 });
 
-Deno.test("buildWsseHeaders: Created が ISO 8601 形式", async () => {
+test("buildWsseHeaders: Created が ISO 8601 形式", async () => {
   const headers = await buildWsseHeaders("testuser", "testapikey");
   const xwsse = headers.get("X-WSSE")!;
   const parsed = parseXWsse(xwsse);
 
   // ISO 8601 として有効な日時であること
   const date = new Date(parsed.created);
-  assertEquals(isNaN(date.getTime()), false);
+  assert.deepEqual(isNaN(date.getTime()), false);
 });
 
-Deno.test("buildWsseHeaders: 呼び出しごとに Nonce が異なる", async () => {
+test("buildWsseHeaders: 呼び出しごとに Nonce が異なる", async () => {
   const h1 = await buildWsseHeaders("testuser", "testapikey");
   const h2 = await buildWsseHeaders("testuser", "testapikey");
   const nonce1 = parseXWsse(h1.get("X-WSSE")!).nonce;
   const nonce2 = parseXWsse(h2.get("X-WSSE")!).nonce;
 
   // 暗号論的乱数なので衝突はまず起きない
-  assertEquals(nonce1 !== nonce2, true);
+  assert.deepEqual(nonce1 !== nonce2, true);
 });
